@@ -71,3 +71,30 @@ def pregunta_01():
 
 
     """
+    import os
+    import pandas as pd
+    import zipfile
+
+    # Descomprimir el archivo zip y guardar los archivos en un directorio
+    direction = "files/input.zip"
+    with zipfile.ZipFile(direction, "r") as zip_ref:
+        zip_ref.extractall("files")
+
+    folders = ["files/input/train", "files/input/test"]
+
+    # Crear directorio de salida
+    if not os.path.exists("files/output"):
+        os.makedirs("files/output")
+
+    for folder in folders:
+        df = {"phrase": [], "target": []}
+
+        for name, _, files in os.walk(folder):
+            for file in files:
+                with open(os.path.join(name, file), "r", encoding="utf-8") as f:
+                    df["phrase"].append(f.read())
+                    df["target"].append(os.path.basename(name))
+
+        # Crear DataFrame y guardarlo como CSV
+        final_df = pd.DataFrame(df)
+        final_df.to_csv(f"files/output/{os.path.basename(folder)}_dataset.csv", index=False)
